@@ -15,7 +15,7 @@ BUF_SIZE = 2
 q = Queue(BUF_SIZE)
 
 def py_frame_callback(frame, userptr):
-  time.sleep(10)
+#  time.sleep(10)
   array_pointer = cast(frame.contents.data, POINTER(c_uint16 * (frame.contents.width * frame.contents.height)))
   data = np.frombuffer(
     array_pointer.contents, dtype=np.dtype(np.uint16)
