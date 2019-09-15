@@ -28,12 +28,14 @@ def incrementCounter():
 #
 
 # Pin definitions
-AD7940_SPI_MISO		= 9
-AD7940_SPI_CS		= 8
-AD7940_SPI_CLK		= 11
+AD7940_SPI_MISO		= 8	#SPI_CS (GPIO8)
+AD7940_SPI_CS		= 9	#SPI_MISO (?)
+AD7940_SPI_CLK		= 24	#PCLR (GPIO24)
 
-PIN_CLR				= 20
-PIN_CLK				= 21
+PIN_CLR			= 11 # SPI_SCLK (?)
+PIN_CLK			= 27 # GPIO 27 (new/wirewrap on PIN 13)
+
+PIN_AOUT		= 23 # PCLK (GPIO23)
 
 def readAD7940():
 	value = 0
@@ -101,6 +103,7 @@ def displayFrame(frame):
 GPIO.setmode(GPIO.BCM)
 
 # ADC pins
+GPIO.setup(PIN_AOUT, GPIO.IN)		# Set to an input, so as not to interfere with ADC.  This pin should not be connected (error on PCB)
 GPIO.setup(AD7940_SPI_MISO, GPIO.IN)
 GPIO.setup(AD7940_SPI_CLK, GPIO.OUT)
 GPIO.setup(AD7940_SPI_CS, GPIO.OUT)
