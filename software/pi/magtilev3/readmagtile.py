@@ -95,6 +95,23 @@ def displayFrame(frame):
 			print(str(frame[idx]) + " ", end="")
 			idx += 1
 		print("")
+
+def displayFrameJSON(frame):
+	idx = 0;
+#	print("data:[", end="");
+	print("[", end="");
+	for x in range(0, 8):
+		print("[", end="")
+		for y in range(0, 8):
+			if (y < 7):
+				print(str(frame[idx]) + ", ", end="")
+			else:
+				print(str(frame[idx]) + "]", end="")
+	
+			idx += 1
+		if (x < 7):
+			print(", ", end="")
+	print("]", end="")
 	
 	
 	
@@ -125,7 +142,7 @@ startTime = time.time()
 # Read numFrames frames from the imager tile.
 for frame in range(0, numFrames):
 	frame = readTileFrame()
-	displayFrame(frame)
+	displayFrameJSON(frame)
 	
 
 # Finish

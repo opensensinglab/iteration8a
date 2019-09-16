@@ -72,3 +72,51 @@ app.get("/GetThermal", function(req, res) {
 
     res.status(200).send(data)
 })
+
+
+app.get("/GetMagnetic", function(req, res) {
+    console.log("GET request for Magnetic Data")
+
+	const { spawn } = require('child_process');
+	const pyProg = spawn('python', ['../magtilev3/readmagtile.py']);
+	
+	console.log("About to start...");
+
+	pyProg.stdout.on('data', function(data) {
+		console.log(data.toString());
+//		console.log("data");
+//		console.log(data);
+		var imageData = JSON.parse(data.toString());
+//		console.log(imageData);
+//		return imageData;
+
+		var data = [{
+		        z: imageData,
+			type: 'heatmap',
+		    }];
+
+		res.status(200).send(data)
+
+	});
+
+//	console.log("Completed");
+})
+
+
+app.get("/GetMagnetic1", function(req, res) {
+    console.log("GET request for Magnetic Data")
+
+//    var thermalImage = [[1, 20, 30], [20, 1, 60], [30, 60, 1]];
+	var magneticImage = readMagneticImage();
+console.log("Out:");
+console.log(magneticImage);
+
+//	var magneticImage = mkRandom2DArray(8, 8);
+    var data = [{
+        z: magneticImage,
+	type: 'heatmap',
+    }];
+
+    res.status(200).send(data)
+
+})
