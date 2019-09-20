@@ -11,6 +11,7 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 var dateTime = require('node-datetime');
 var url = require('url');
+const process = require('process');
 
 /*
  * Express Configurations
@@ -74,27 +75,87 @@ app.get("/GetRandom", function(req, res) {
 })
 
 
+var thermalFrame = [];
+var thermalStr = "";
+var thermalEnabled = false;
+
+function enableCamera() {
+        console.log("GET request for Thermal Data")
+        const { spawn } = require('child_process');
+        const pyProg = spawn('sudo', ['python', '../thermalZero/string_outJSON.py'], {uid:process.getuid(), gid:process.getgid()});
+
+        console.log("About to start...");
+
+	thermalEnabled = true;
+	thermalStr = "";
+
+        pyProg.stdout.on('data', function(data) {
+		thermalStr += data.toString();
+//                console.log("############################");
+//                console.log(data.toString());
+
+		var lines = thermalStr.split("\n");
+		if (lines.length > 2) {
+			var secondLastLine = lines[lines.length-2];
+			console.log("SECOND LAST LINE: ");
+			console.log(secondLastLine);
+			if (secondLastLine.startsWith("[")) {
+				var imageData = JSON.parse(secondLastLine);
+				thermalFrame = imageData;
+			}
+		}
+	})
+
+	pyProg.on('exit', function(code) {
+		console.log("Exiting camera reads. ");
+		thermalEnabled = false;
+	});
+
+}
+
 app.get("/GetThermal", function(req, res) {
 	console.log("GET request for Thermal Data")
+
+	if (thermalEnabled == false) {
+		enableCamera();
+	}
+
+        var data = [{
+		z: thermalFrame,
+		type: 'heatmap',
+	}];
+
+	res.status(200).send(data)
+
+})
+
+app.get("/GetThermal1", function(req, res) {
+	console.log("GET request for Thermal Data")
 	const { spawn } = require('child_process');
-        const pyProg = spawn('python', ['../thermalZero/string_outJSON.py']);
+        const pyProg = spawn('sudo', ['python', '../thermalZero/string_outJSON.py'], {uid:process.getuid(), gid:process.getgid()});
 
         console.log("About to start...");
 
         pyProg.stdout.on('data', function(data) {
+		console.log("############################");
                 console.log(data.toString());
 //              console.log("data");
 //              console.log(data);
-                var imageData = JSON.parse(data.toString());
+
+
+//#                var imageData = JSON.parse(data.toString());
+
 //              console.log(imageData);
 //              return imageData;
 
+/*
                 var data = [{
                         z: imageData,
                         type: 'heatmap',
                     }];
+*/
 
-                res.status(200).send(data)
+//#                res.status(200).send(data)
 
         });
 })

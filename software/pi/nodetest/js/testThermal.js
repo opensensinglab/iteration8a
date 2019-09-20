@@ -40,7 +40,7 @@ InferenceGraph.controller("MainController", function($scope, $compile, $http, $w
 		  }
 		};
 
-		$http.get("/GetMagnetic").then(function(resp) {
+		$http.get("/GetThermal").then(function(resp) {
 //		$http.get("/GetThermal").then(function(resp) {
         		var data1 = resp.data;
 			console.log(data1);
