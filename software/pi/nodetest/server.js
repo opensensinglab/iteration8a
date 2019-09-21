@@ -97,8 +97,8 @@ function enableCamera() {
 		var lines = thermalStr.split("\n");
 		if (lines.length > 2) {
 			var secondLastLine = lines[lines.length-2];
-			console.log("SECOND LAST LINE: ");
-			console.log(secondLastLine);
+//			console.log("SECOND LAST LINE: ");
+//			console.log(secondLastLine);
 			if (secondLastLine.startsWith("[")) {
 				var imageData = JSON.parse(secondLastLine);
 				thermalFrame = imageData;
