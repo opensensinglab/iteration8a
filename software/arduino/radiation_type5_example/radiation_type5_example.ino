@@ -32,15 +32,16 @@ int numLoop = 0;
 void loop() {
   // Display counts per minute (cpm)
   float cpm = sensorRadiation.calculateCPM();
-  Serial.print ("CPM: ");  
-  Serial.println(cpm, DEC);
+  //Serial.print ("CPM: ");  
+  //Serial.println(cpm, DEC);
   
   // Display pulse width histogram
-  sensorRadiation.debugPrint();
+  //sensorRadiation.debugPrint();
+  sensorRadiation.exportJSON();
 
   numLoop += 1;
-  Serial.print ("Loop: ");  
-  Serial.println(numLoop, DEC);
+  //Serial.print ("Loop: ");  
+  //Serial.println(numLoop, DEC);
   
   delay(2000);
 

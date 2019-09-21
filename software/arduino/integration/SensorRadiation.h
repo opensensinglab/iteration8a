@@ -24,6 +24,10 @@
 // Number of spectral bins for energy level spectra
 #define RAD_SPEC_BINS    40
 
+// Digital potentiometer pins
+#define DIGIPOT_UD     5
+#define DIGIPOT_CS    4
+
 
 class SensorRadiation {
   // Variables  
@@ -31,6 +35,7 @@ class SensorRadiation {
   SensorBuffer* sbRadCounts;
   uint16_t intTime; 
   uint16_t spectralBins[RAD_SPEC_BINS];
+  int digipotSetting;
 
   private:  
   unsigned long countStart;
@@ -52,10 +57,19 @@ class SensorRadiation {
   void addCount(uint16_t pulseWidth);
   float calculateCPM();
   void populateSensorBufferSpectrum(SensorBuffer* sb);
-          
+
+  // Digipot          
+  void initDigipot();
+  void incrementDigipot(int val);
+  void decrementDigipot(int val);
+  void setDigipot(int num);
+  void setDigipotAbsolute(int num);  
+  
   // Debug 
   void debugPrint();
   void exportJSON();
+
+  
 };
 
 

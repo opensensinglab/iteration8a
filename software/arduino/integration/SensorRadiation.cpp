@@ -22,6 +22,9 @@ SensorRadiation::SensorRadiation(SensorBuffer* sb) {
   // Counts
   countStart = 0;
   curCount = 0;
+
+  // Digipot default setting
+  digipotSetting = 32;
   
   // Default settings
   setIntegrationTime(1000);       // 1 second
@@ -166,7 +169,7 @@ void SensorRadiation::exportJSON() {
   Serial.print("{\"radiation\": {");
 
   // Sensor
-  Serial.print("\"sensor\": \"T5B1\", ");
+  Serial.print("\"sensor\": \"RWT5B1\", ");
 
   // CPM
   Serial.print("\"cpm\": ");
@@ -193,6 +196,79 @@ void SensorRadiation::exportJSON() {
   
 }
 
+/*
+ * Digital Potentiometer
+ */
+
+void SensorRadiation::initDigipot() {
+  pinMode(DIGIPOT_UD, OUTPUT);
+  pinMode(DIGIPOT_CS, OUTPUT);
+
+  digitalWrite(DIGIPOT_CS, 1);    // Inactive
+  digitalWrite(DIGIPOT_UD, 0);    // N/A
+}
+
+void SensorRadiation::incrementDigipot(int val) {
+  digitalWrite(DIGIPOT_CS, 1);    // Inactive
+  delayMicroseconds(10);
+  digitalWrite(DIGIPOT_UD, 1);    // Set to increment
+  delayMicroseconds(10);
+
+  digitalWrite(DIGIPOT_CS, 0);    // Active
+  delayMicroseconds(10);
+
+  for (int i=0; i<val; i++) {
+    // Pulse to increment
+    digitalWrite(DIGIPOT_UD, 0);    
+    delayMicroseconds(10);
+    digitalWrite(DIGIPOT_UD, 1);    
+    delayMicroseconds(10);
+  }
+
+  digitalWrite(DIGIPOT_CS, 1);    // Inactive  
+  delayMicroseconds(10);
+}
+
+void SensorRadiation::decrementDigipot(int val) {
+  digitalWrite(DIGIPOT_CS, 1);    // Inactive
+  delayMicroseconds(10);
+  digitalWrite(DIGIPOT_UD, 0);    // Set to decrement
+  delayMicroseconds(10);
+
+  digitalWrite(DIGIPOT_CS, 0);    // Active
+  delayMicroseconds(10);
+
+  for (int i=0; i<val; i++) {
+    // Pulse to decrement
+    digitalWrite(DIGIPOT_UD, 1);    
+    delayMicroseconds(10);
+    digitalWrite(DIGIPOT_UD, 0);    
+    delayMicroseconds(10);
+  }
+
+  digitalWrite(DIGIPOT_CS, 1);    // Inactive  
+  delayMicroseconds(10);
+}
+
+
+void SensorRadiation::setDigipot(int num) {
+  int delta = digipotSetting - num;
+  if (delta > 0) {
+    incrementDigipot(delta);
+  } 
+  if (delta < 0) {
+    decrementDigipot(-delta);
+  }
+  digipotSetting += delta;
+}
+
+void SensorRadiation::setDigipotAbsolute(int num) {
+  incrementDigipot(64);
+  decrementDigipot(64 - num);
+  //digipotSetting = 32;
+
+  //setDigipot(num);
+}
 
 
 // ******************************************  
