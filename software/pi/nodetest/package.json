@@ -23,6 +23,7 @@
     "ui-bootstrap": "~0.1.10",
     "moment": "2.18.1",
     "require": "2.4.20",
-    "node-datetime": "1.0.1"
+    "node-datetime": "1.0.1",
+    "serialport": "7.1.5"
   }
 }

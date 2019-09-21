@@ -41,6 +41,38 @@ var server = app.listen(PORT, function () {
     console.log("App listening at http://%s:%s", host, port);
 });
 
+/* 
+ * Serial Port
+ */
+const SerialPort = require('serialport')
+const Readline = require('@serialport/parser-readline')
+const port = new SerialPort("/dev/serial0", {
+	baudRate: 115200,
+});
+const parser = port.pipe(new Readline({ delimiter: '\r\n' }))
+
+// Read port data
+var dataCO2 = [];
+var dataRadiation = [];
+var dataAirParticles = [];
+
+port.on("open", function() {
+	console.log("Serial Port Opened");
+	parser.on('data', function(data) {
+		console.log("Serial Data: " + data);
+		var data = JSON.parse(data);
+		if ('radiation' in data) {
+			dataRadiation.push(data);
+		}
+		if ('co2' in data) {
+			dataCO2.push(data);
+		}
+		if ('airparticles' in data) {
+			dataAirParticles.push(data);
+		}
+	});
+});
+
 
 /* 
  * Utilities
@@ -73,6 +105,127 @@ app.get("/GetRandom", function(req, res) {
 
     res.status(200).send(data)
 })
+
+
+app.get("/GetCo2", function(req, res) {
+    console.log("GET request for Co2 data")
+
+	var xData = [];
+	var yData = [];
+	for (var i=0; i<dataCO2.length; i++) {
+		xData.push(i);
+		yData.push( dataCO2[i].co2.co2ppm );
+	}
+
+	var trace1 = {
+		x: xData,
+		y: yData,
+	 	mode: 'lines+markers',
+	 	type: 'scatter'
+	};
+
+//	console.log(trace1);
+
+    var data = [trace1];
+
+    res.status(200).send(data)
+})
+
+app.get("/GetRadiation", function(req, res) {
+    console.log("GET request for Radiation data")
+
+	// CPM
+        var xData = [];
+        var yData = [];
+        for (var i=0; i<dataRadiation.length; i++) {
+                xData.push(i);
+                yData.push( dataRadiation[i].radiation.cpm );
+        }
+
+        var trace1 = {
+                x: xData,
+                y: yData,
+                mode: 'lines+markers',
+                type: 'scatter'
+        };
+
+	// Histogram
+	var histData = [];
+	var histBinSize = 0;
+	var histBins = [];
+	if (dataRadiation.length > 1) {
+		histData = dataRadiation[dataRadiation.length-1].radiation.hist;
+		histBinSize = dataRadiation[dataRadiation.length-1].radiation.histBinSize;
+		for (var i=0; i<histData.length; i++) {
+			histBins[i] = (i+1) * histBinSize;
+		}
+	}
+
+
+	// Pack
+	var cpmData = [trace1];
+	var histData = [{x: histBins, y: histData, type: 'bar'}];
+	
+	console.log(histData);
+
+	var data = {cpmData:cpmData, histData:histData};
+
+	// Send
+	res.status(200).send(data)
+})
+
+app.get("/GetAirParticles", function(req, res) {
+    console.log("GET request for Air Particle data")
+
+        var xData = [];
+        var yDataPM1p0 = [];
+        var yDataPM2p5 = [];
+        var yDataPM4p0 = [];
+        var yDataPM10p0 = [];
+        for (var i=0; i<dataCO2.length; i++) {
+                xData.push(i);
+                yDataPM1p0.push( dataAirParticles[i].airparticles.pm1p0 );
+                yDataPM2p5.push( dataAirParticles[i].airparticles.pm2p5 );
+                yDataPM4p0.push( dataAirParticles[i].airparticles.pm4p0 );
+                yDataPM10p0.push( dataAirParticles[i].airparticles.pm10p0 );
+        }
+
+        var trace1 = {
+                x: xData,
+                y: yDataPM1p0,
+                mode: 'lines+markers',
+                type: 'scatter'
+        };
+
+        var trace2 = {
+                x: xData,
+                y: yDataPM2p5,
+                mode: 'lines+markers',
+                type: 'scatter'
+        };
+
+        var trace3 = {
+                x: xData,
+                y: yDataPM4p0,
+                mode: 'lines+markers',
+                type: 'scatter'
+        };
+
+        var trace4 = {
+                x: xData,
+                y: yDataPM10p0,
+                mode: 'lines+markers',
+                type: 'scatter'
+        };
+
+
+    var data = [trace1, trace2, trace3, trace4];
+
+    res.status(200).send(data)
+})
+
+
+
 
 
 var thermalFrame = [];
