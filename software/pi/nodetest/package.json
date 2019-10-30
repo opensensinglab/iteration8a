@@ -14,7 +14,7 @@
     "angular-formly-templates-bootstrap": "^6.4.0",
     "api-check": "^7.5.5",
     "body-parser": "^1.17.1",
-    "bootstrap": "3.3.7",
+    "bootstrap": "3.4.1",
     "cookie-parser": "~1.4.3",
     "express": "^4.15.2",
     "httpdispatcher": "~2.0.1",
